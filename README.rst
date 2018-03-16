@@ -1,6 +1,31 @@
 Flask-JsonSchema
 ================
 
+This repository is forked from the
+[original](https://github.com/mattupstate/flask-jsonschema) in order to support
+JSON Schema References (additionally because the original has not been updated
+in nearly 5 years). See documentation below.
+
+Differences from the original
+
+* Support for JSON Schema References
+* Any changes to this repository will *officially* only support Python 3. The
+  library is so small it might just end up supporting Python 2 anyway though.
+
+
+Installation
+------------
+
+With pip::
+
+    pip install git+https://github.com/b-ryan/flask-jsonschema.git@master
+
+
+If this gains any amount of popularity I can make a PyPi package for it.
+
+Usage
+-----
+
 JSON request validation for Flask applications.
 
 Place schemas in the specified ``JSONSCHEMA_DIR``. ::
@@ -51,9 +76,42 @@ that you can organize related schemas in one file. If you do not wish to use thi
 feature you can simply use one schema per file and remove the second parameter
 to the ``@jsonschema.validate`` call.
 
+JSON Schema References
+----------------------
+
+Sometimes you may want to DRY up your schemas and put commonly-used schemas in
+a central location. You can do this by creating a ``definitions`` directory
+within your ``schemas`` directory. Each JSON file in this directory may contain
+a single schema that will then be made available to each of your top-level
+schemas. For example, you may have a file named ``definitions/author.json``
+with contents::
+
+    {
+      "type": "string"
+    }
+
+And then modify the above example schema file to look like this::
+
+    {
+      "create": {
+        "type": "object",
+        "properties": {
+          "title": {},
+          "author": {"$ref": "#/definitions/author"}
+        },
+        "required": ["title", "author"]
+      },
+      "update": {
+        "type": "object",
+        "properties": {
+          "title": {},
+          "author": {"$ref": "#/definitions/author"}
+        }
+      }
+    }
 
 Resources
 ---------
 
-- `Issue Tracker <http://github.com/mattupstate/flask-jsonschema/issues>`_
-- `Code <http://github.com/mattupstate/flask-jsonschema/>`_
+- `Issue Tracker <http://github.com/b-ryan/flask-jsonschema/issues>`_
+- `Code <http://github.com/b-ryan/flask-jsonschema/>`_

@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 import os
 import unittest
 
@@ -37,7 +37,7 @@ class JsonSchemaTests(unittest.TestCase):
                 'author': 'David Foster Wallace'
             })
         )
-        self.assertIn('success', r.data)
+        self.assertIn(b'success', r.data)
 
     def test_invalid_json(self):
         r = client.post(
@@ -47,4 +47,8 @@ class JsonSchemaTests(unittest.TestCase):
                 'title': 'Infinite Jest'
             })
         )
-        self.assertIn('error', r.data)
+        self.assertIn(b'error', r.data)
+
+
+if __name__ == "__main__":
+    unittest.main()

@@ -3,7 +3,9 @@
     "type": "object",
     "properties": {
       "title": {},
-      "author": {}
+      "author": {
+        "$ref": "#/definitions/author"
+      }
     },
     "required": ["title", "author"]
   },
