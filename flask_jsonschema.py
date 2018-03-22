@@ -20,7 +20,18 @@ from jsonschema import ValidationError, validate
 
 
 class _JsonSchema(object):
-    def __init__(self, schemas, definitions):
+    def __init__(self, app):
+        self._app = app
+        self._schemas = None
+        self._defs = None
+        self.read()
+
+    def read(self):
+        default_dir = os.path.join(self._app.root_path, 'jsonschema')
+        schema_dir = self._app.config.get('JSONSCHEMA_DIR', default_dir)
+        schemas = _read_json_files(schema_dir)
+        defs_dir = os.path.join(schema_dir, 'definitions')
+        definitions = _read_json_files(defs_dir)
         self._schemas = schemas
         self._defs = definitions
 
@@ -52,25 +63,23 @@ def _read_json_files(directory):
 
 class JsonSchema(object):
     def __init__(self, app=None):
-        self.app = app
-        if app is not None:
-            self._state = self.init_app(app)
+        self.app = None
+        if app:
+            self.init_app(app)
 
     def init_app(self, app):
-        default_dir = os.path.join(app.root_path, 'jsonschema')
-        schema_dir = app.config.get('JSONSCHEMA_DIR', default_dir)
-        schemas = _read_json_files(schema_dir)
-        defs_dir = os.path.join(schema_dir, 'definitions')
-        definitions = _read_json_files(defs_dir)
-        state = _JsonSchema(schemas, definitions)
-        app.extensions['jsonschema'] = state
-        return state
+        self.app = app
+        self._state = _JsonSchema(app)
+        app.extensions['jsonschema'] = self._state
+        return self._state
 
     def validate(self, *path):
         def wrapper(fn):
             @wraps(fn)
             def decorated(*args, **kwargs):
-                schema = current_app.extensions['jsonschema'].get_schema(path)
+                if self.app.config.get('DEBUG'):
+                    self._state.read()
+                schema = self._state.get_schema(path)
                 validate(request.json, schema)
                 return fn(*args, **kwargs)
             return decorated

@@ -11,6 +11,7 @@ Differences from the original
 * Support for JSON Schema References
 * Any changes to this repository will *officially* only support Python 3. The
   library is so small it might just end up supporting Python 2 anyway though.
+* Support for auto-reloading schemas
 
 
 Installation
